@@ -1,31 +1,39 @@
 # Contributing to Relay Rover Engine
 
-Thank you for your interest in contributing to **Relay Rover Engine** (codename **Rover**)! This document provides a comprehensive guide to understanding the codebase, building and running tests, extending filters and extractors, adding custom regex rules, and contributing to the Rover ecosystem.
+Thank you for your interest in contributing to **Relay Rover Engine** (codename **Rover**)! This document provides a complete guide to understanding the codebase, building from source, running tests, reproducing benchmarks, extending filters and extractors, adding custom regex rules, and contributing to the Rover ecosystem.
 
 ---
 
 ## 1. Project Mission & Design Principles
 
-Relay Rover is built to be:
-1. **Deterministic**: No probabilistic LLM calls, zero network dependency, and 100% reproducible outcomes.
-2. **Predictable & Fast**: Single-pass `RegexSet` category detection followed by targeted extraction in microseconds.
-3. **Robust**: Resilient against catastrophic backtracking, zero `.unwrap()` in runtime paths, and defensive fallbacks.
+Relay Rover is designed around strict deterministic principles:
+1. **Deterministic & Zero-LLM**: No probabilistic LLM calls, zero network dependency, and 100% reproducible outcomes across devices.
+2. **Predictable & Fast**: Single-pass `RegexSet` category detection followed by targeted extraction in microseconds (< 100 µs/email).
+3. **Robust & Safe**: Resilient against catastrophic backtracking, zero `.unwrap()` in runtime paths, and defensive fallbacks.
 4. **Extensible**: Clean public API (`Rover`, `RoverEngine`, `RoverBuilder`, `EmailFilter`) allowing downstream developers to customize rules.
-5. **Maintainable**: Strict separation of concerns between models, extractors, filters, engine, and benchmarks.
+5. **Separation of Concerns**: Clean boundaries between models, extractors, filters, engine, and benchmarks.
 
 ---
 
-## 2. Directory & File Reference Map
+## 2. Directory & Architecture Map
 
 ```text
-relay-intelligence/
+relay-eng/
 ├── Cargo.toml                  # Package manifest, dependencies, features (wasm), crate types
 ├── data/
 │   └── emails.json             # 100 realistic synthetic benchmark emails with ground-truth labels
+├── packages/
+│   └── rover/                  # Universal JavaScript / React Native package (@rhq/rover)
+│       ├── eng/
+│       │   └── relay_rover.wasm# Production release WebAssembly engine
+│       ├── index.js            # JavaScript WebAssembly runtime bridge
+│       ├── index.d.ts          # Complete TypeScript typings
+│       ├── package.json        # npm package manifest
+│       └── README.md           # Client-side integration guide
 ├── src/
 │   ├── lib.rs                  # Root library crate exposing public API (Rover, RoverEngine, RoverBuilder)
 │   ├── main.rs                 # CLI entry point running benchmark suites and terminal report
-│   ├── models.rs               # Category enum, typed extraction structs, EmailRecord, ProcessedEmail
+│   ├── models.rs               # Category enum, classification structs, typed extractions, EmailRecord
 │   ├── engine.rs               # High-level RoverEngine (EmailEngine) & RoverBuilder APIs
 │   ├── registry.rs             # RegexRegistry & RegistryBuilder managing RegexSet DFA
 │   ├── preview.rs              # Deterministic contextual preview generation (< 100 chars)
@@ -42,6 +50,7 @@ relay-intelligence/
 │   │   ├── travel.rs           # Airline/hotel bookings, PNRs, destinations, dates
 │   │   ├── newsletter.rs       # Weekly digests, publishers, topics, headlines
 │   │   ├── social.rs           # Social notifications, mentions, PR reviews, actors
+│   │   ├── security.rs         # Security alerts, build failures, account notices
 │   │   └── general.rs          # General personal communication excerpt fallback
 │   └── extractors/             # Shared reusable entity extraction components
 │       ├── mod.rs              # Extractor module declarations and re-exports
@@ -50,22 +59,49 @@ relay-intelligence/
 │       ├── identity.rs         # Merchant, issuer, provider, store, and person parser
 │       ├── transaction.rs      # TXN, Order ID, Booking ID, PNR, Tracking number parser
 │       └── otp.rs              # Authentication code and expiration parser
-└── tests/
-    ├── category_tests.rs       # Dedicated unit tests for every category and builder API
-    └── dataset_accuracy.rs     # End-to-end accuracy evaluation against ground-truth dataset
+├── tests/
+│   ├── category_tests.rs       # Dedicated unit tests for every category and builder API
+│   └── dataset_accuracy.rs     # End-to-end accuracy evaluation against ground-truth dataset
+├── scratch/
+│   └── generate_emails.py      # Python generator for 100 benchmark synthetic emails
+├── sample_5_types.json         # Real-world email samples across 5 major categories
+├── test_rover.js               # Node.js / JavaScript end-to-end benchmark & test script
+├── CONTRIBUTING.md             # This contributor guide
+├── BENCHMARK.md                # Comprehensive benchmark results & analysis
+├── TEST_RESULTS.md             # Extraction test results & side-by-side comparison tables
+└── README.md                   # Project overview & quick start
 ```
 
 ---
 
-## 3. Development Workflow
+## 3. How the Engine Works Internally
+
+### Single-Pass Category Detection (`RegexSet`)
+The standard approach of sequentially evaluating $N$ independent regular expressions scales with $O(N \times L)$ time complexity (where $L$ is email body length):
+
+$$\text{Naive approach: } \text{Regex}_1 \to \text{Regex}_2 \to \dots \to \text{Regex}_N$$
+
+In contrast, Rover compiles all category detection patterns into a unified `regex::RegexSet` DFA automaton:
+
+$$\text{Rover: } \text{Input Text} \longrightarrow \mathbf{\text{RegexSet DFA (1 Pass)}} \longrightarrow \text{Matching Category IDs}$$
+
+1. **Single-Pass Stream**: The email text streams through the automaton once in $O(L)$ time, regardless of pattern count.
+2. **Bitset Result**: `RegexSet::matches()` produces a compact bitset of matching pattern indices.
+3. **Lazy Extraction Dispatch**: Rover maps matched indices to the primary `Category` and runs **only** the extraction regexes associated with that category. Unmatched categories are never scanned.
+
+---
+
+## 4. Development Workflow
 
 ### Prerequisites
 - Stable Rust (1.80+ or 2024 edition).
 - `cargo` package manager.
+- Node.js (v18+) for running JavaScript package tests.
+- Python 3 for dataset generation scripts.
 
 ### Build and Check
 ```bash
-# Check compilation across all features
+# Check compilation across all features and targets
 cargo check --all-targets --all-features
 
 # Build debug binary
@@ -75,17 +111,21 @@ cargo build
 cargo build --release
 ```
 
-### Run Tests
+### Running Tests
 ```bash
 # Run all unit and integration tests
-cargo test
+cargo test --all-targets
 
-# Run tests with stdout output
+# Run tests with live stdout output
 cargo test -- --nocapture
+
+# Run specific test suite
+cargo test --test category_tests
+cargo test --test dataset_accuracy
 ```
 
-### Code Formatting and Linting
-We enforce strict formatting and zero-warning Clippy standards:
+### Code Formatting & Linting
+We enforce zero Clippy warnings and standard `rustfmt` formatting:
 ```bash
 # Check formatting
 cargo fmt --check
@@ -93,48 +133,93 @@ cargo fmt --check
 # Apply formatting
 cargo fmt
 
-# Run Clippy lints
+# Run strict Clippy lints
 cargo clippy --all-targets --all-features
 ```
 
 ---
 
-## 4. How to Add a New Category
+## 5. Dataset Generation & Benchmarking
 
-Follow these steps to add a new category (e.g. `Tax` or `Medical`):
+### Generating the 100-Email Evaluation Dataset
+To regenerate or inspect the ground-truth benchmark dataset:
+```bash
+python3 scratch/generate_emails.py
+```
+This populates `data/emails.json` with 100 realistic email records across 10 categories, each labeled with expected categories and field extractions.
 
-### Step 1: Add the Variant to `Category` (`src/models.rs`)
-1. Add the new variant to `pub enum Category`:
-   ```rust
-   pub enum Category {
-       // ... existing variants
-       Tax,
-   }
-   ```
-2. Update `Category::as_str()` and `Category::all_specialized()`.
+### Running the Native Benchmark
+```bash
+# Single-threaded mode (default: 1 thread)
+cargo run --release
+
+# Multi-threaded mode with custom thread pool
+cargo run --release -- --threads 4
+
+# Multi-threaded mode using all available CPU cores
+cargo run --release -- --multi-thread
+```
+
+### Running the JavaScript / WASM Benchmark
+```bash
+node test_rover.js
+```
+This executes the benchmark over `sample_5_types.json` and `data/emails.json`, outputting p50, p95, and p99 latencies and updating `TEST_RESULTS.md`.
+
+---
+
+## 6. Compiling WebAssembly & Mobile Targets
+
+### Building WebAssembly (`wasm32-unknown-unknown`)
+```bash
+# 1. Compile optimized release target
+cargo build --target wasm32-unknown-unknown --release
+
+# 2. Copy compiled binary into packages/rover/eng/
+cp target/wasm32-unknown-unknown/release/relay_rover.wasm packages/rover/eng/relay_rover.wasm
+```
+
+### Cross-Compiling for Mobile JSI / Nitro (Optional)
+If embedding Rover natively into mobile binaries rather than WASM:
+```bash
+# Android NDK targets
+cargo build --target aarch64-linux-android --release
+cargo build --target x86_64-linux-android --release
+
+# iOS targets
+cargo build --target aarch64-apple-ios --release
+cargo build --target aarch64-apple-ios-sim --release
+```
+
+---
+
+## 7. How to Add a New Category
+
+To add a new category (for example, `Tax`):
+
+### Step 1: Add Variant to `Category` (`src/models.rs`)
+```rust
+pub enum Category {
+    // ...
+    Tax,
+}
+```
+Update `Category::as_str()` and `Category::all_specialized()`.
 
 ### Step 2: Define the Extraction Model (`src/models.rs`)
-1. Define the typed extraction struct:
-   ```rust
-   #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-   pub struct TaxExtraction {
-       pub form_name: Option<String>,
-       pub tax_year: Option<String>,
-       pub amount: Option<Decimal>,
-       pub raw_evidence: Option<String>,
-   }
-   ```
-2. Add the variant to `pub enum ExtractedData`:
-   ```rust
-   pub enum ExtractedData {
-       // ...
-       Tax(TaxExtraction),
-   }
-   ```
-3. Update `ExtractedData::category(&self)`.
+```rust
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TaxExtraction {
+    pub form_name: Option<String>,
+    pub tax_year: Option<String>,
+    pub amount: Option<Decimal>,
+    pub timeline_key: Option<String>,
+    pub raw_evidence: Option<String>,
+}
+```
+Add `Tax(TaxExtraction)` to `pub enum ExtractedData` and update `ExtractedData::category(&self)`.
 
 ### Step 3: Implement the Filter (`src/filters/tax.rs`)
-Create `src/filters/tax.rs`:
 ```rust
 use crate::models::{Category, EmailRecord, ExtractedData, TaxExtraction};
 use crate::filters::EmailFilter;
@@ -157,7 +242,6 @@ impl EmailFilter for TaxFilter {
     fn category(&self) -> Category { Category::Tax }
     fn detection_patterns(&self) -> &[&'static str] { TAX_DETECTION_PATTERNS }
     fn extract(&self, email: &EmailRecord) -> ExtractedData {
-        // Perform typed extraction
         ExtractedData::Tax(TaxExtraction::default())
     }
     fn generate_preview(&self, email: &EmailRecord, data: &ExtractedData) -> String {
@@ -167,147 +251,28 @@ impl EmailFilter for TaxFilter {
 ```
 
 ### Step 4: Register in `src/filters/mod.rs` & `src/registry.rs`
-1. In `src/filters/mod.rs`:
+1. In `src/filters/mod.rs`, add:
    ```rust
    pub mod tax;
    pub use tax::TaxFilter;
    ```
-2. In `src/registry.rs`:
-   In `RegistryBuilder::build()`, add:
-   ```rust
-   if let Entry::Vacant(e) = self.filters.entry(Category::Tax) {
-       e.insert(Box::new(TaxFilter::new()?));
-   }
-   ```
+2. In `src/registry.rs`, register the filter inside `RegistryBuilder::build()`.
 
-### Step 5: Update `src/preview.rs`
-Add a branch in `generate_preview()` to format clean notifications for the new category.
+### Step 5: Update `src/preview.rs` & `src/engine.rs`
+1. Add preview formatting logic in `src/preview.rs`.
+2. Add dual-layer classification mappings in `EmailEngine::classify_email()`.
 
 ### Step 6: Add Unit Tests (`tests/category_tests.rs`)
-Write a dedicated unit test ensuring both positive detection and accurate field extraction.
+Add dedicated test cases verifying both positive category detection and accurate field extraction.
 
 ---
 
-## 5. How to Add a New Regex Pattern or Extractor Rule
+## 8. Coding & Performance Standards
 
-### Pre-Compilation Rule
-> **IMPORTANT**: Never call `Regex::new()` inside an execution loop or extraction function.
-> Always compile regular expressions in the `new()` method of the extractor or filter, and store them as struct fields.
-
-### Adding Shared Extractor Rules
-If you are adding a new identifier format (e.g., a new shipping carrier or bank reference format):
-1. Navigate to `src/extractors/`.
-2. Locate the relevant extractor (`transaction.rs`, `amount.rs`, `identity.rs`, etc.).
-3. Update the regex pattern in `new()`.
-4. Test with both matching samples and negative distractor strings.
-
----
-
-## 6. Coding & Performance Standards
-
-1. **No Catastrophic Backtracking**:
-   - Avoid unbounded nested quantifiers like `(a+)+` or `.*.*`.
-   - Prefer character classes like `[A-Za-z0-9_-]` over generic `.*`.
-2. **Zero Unwraps in Production**:
-   - Return `Result<T, Error>` for fallible operations.
-   - Use `and_then()`, `map()`, or `?` instead of `.unwrap()`.
-3. **Memory Reuse**:
-   - Avoid cloning strings unless necessary.
-   - Format preview strings with pre-allocated capacity.
-4. **Validation**:
-   - Every PR must pass `cargo test`, `cargo clippy --all-targets --all-features`, and `cargo fmt --check`.
-
-
-## 5. In-Depth Analysis: How Each Specific Extractor Works
-
-### 1. `AmountExtractor` (`src/extractors/amount.rs`)
-- **Challenge**: Standard regex word boundaries (`\b`) fail on non-word currency symbols like `$`, `€`, `₹`, `£`, `¥` when preceded by spaces. Floating-point numbers also risk rounding errors.
-- **Solution**:
-  - Uses `(?:^|[^\w])(?P<curr>...)\s*(?P<val>...)` to match symbol currencies cleanly without boundary failures.
-  - Parses quantities directly into `rust_decimal::Decimal`, avoiding binary floating-point representation bugs.
-  - Normalizes symbols (`₹`, `INR`) and lowercase currencies into standard ISO 4217 uppercase codes (`INR`, `USD`, `EUR`, `GBP`, `JPY`).
-
-### 2. `DateExtractor` (`src/extractors/date.rs`)
-- **Challenge**: Emails contain multiple dates in conflicting formats (e.g. email sent date vs transaction date vs payment due date).
-- **Solution**:
-  - Matches standard ISO 8601 dates (`YYYY-MM-DD`).
-  - Supports verbal English dates (`15 November 2026`) and converts them deterministically to standardized numeric format.
-  - Supports slash formats (`MM/DD/YYYY`).
-
-### 3. `OtpExtractor` (`src/extractors/otp.rs`)
-- **Challenge**: Six-digit order numbers, phone numbers, zip codes, and account numbers must not be mistakenly classified as verification codes.
-- **Solution**:
-  - Contextual anchoring: requires explicit security tokens in immediate proximity (e.g. `verification code is [0-9]{4,8}`, `security code [0-9]{4,8}`, `OTP: [0-9]{4,8}`).
-  - Extracts duration strings (`expires in 10 minutes`, `valid for 5 minutes`) and associated service names.
-
-### 4. `TransactionExtractor` (`src/extractors/transaction.rs`)
-- **Challenge**: Distinguishing transaction IDs from order IDs, airline PNRs, invoice numbers, and shipping tracking numbers.
-- **Solution**:
-  - Employs distinct pattern families for each entity type:
-    - Transaction IDs: `TXN-...`, `PF-...`, `Ref: ...`, `ARN: ...`, `UPI Ref: ...`
-    - Order IDs: `SQ-...`, `ORD-...`, `#HS-...`, `Order: ...`
-    - Booking IDs / PNR: `PNR SK-...`, `Ref #GM-...`, `Booking ID: ...`
-    - Invoice Numbers: `INV-...`, `ME-...`, `GMP-...`
-    - Tracking Numbers: `TRK-...`, `FEDX-...`, `DHL-...`, `UPS-...`
-
-### 5. `IdentityExtractor` (`src/extractors/identity.rs`)
-- **Challenge**: Extracting merchant and recipient names from freeform sentences without greedily capturing trailing sentences.
-- **Solution**:
-  - Explicit termination delimiters: boundaries terminate on `\s+on`, `\s+was`, `\s+for`, `\n`, periods, or transaction tags.
-  - Defensive filtering: strips false positive tokens (e.g. `account IBAN...` or masked card numbers).
-
----
-
-## 7. In-Depth Analysis: How Each Filter Works
-
-### 1. `PaymentFilter` (`src/filters/payment.rs`)
-- **Detection**: Single-pass triggers on `debited by`, `wire transfer of`, `payment confirmed`, `UPI payment of`, `payout confirmation`.
-- **Extraction**: Extracts `amount`, `currency`, `recipient`, `transaction_id`, `transaction_date`, and `transaction_status`.
-- **Preview**: `"₹2,500 paid to QuickMart Retail · Successful"`.
-
-### 2. `OtpFilter` (`src/filters/otp.rs`)
-- **Detection**: Matches security and 2FA authentication alerts (`verification code`, `one-time password`, `verification PIN`).
-- **Extraction**: Extracts `otp_code`, `service_name`, and `expiration_time`.
-- **Preview**: `"Acme Portal verification code · 482913"`.
-
-### 3. `JobFilter` (`src/filters/job.rs`)
-- **Detection**: Matches interview invitations, job offers, application acknowledgements, and coding assessments.
-- **Extraction**: Extracts `company`, `position` (with suffix cleaning to remove redundant words like `"role"` or `"vacancy"`), `location`, `salary`, `deadline`, and `interview_date`.
-- **Preview**: `"Interview invitation · Senior Rust Systems Engineer"`.
-
-### 4. `ShoppingFilter` (`src/filters/shopping.rs`)
-- **Detection**: Matches order confirmations, shipments, dispatch alerts, and package tracking updates.
-- **Extraction**: Extracts `store`, `order_id`, `product`, `amount`, `delivery_status`, and `tracking_number`.
-- **Preview**: `"Processing · Tracking available"`.
-
-### 5. `InvoiceFilter` (`src/filters/invoice.rs`)
-- **Detection**: Matches bill statements, utility invoices, platform fee statements, and payment due notices.
-- **Extraction**: Extracts `invoice_number`, `amount`, `currency`, `due_date`, and `issuer`.
-- **Preview**: `"Invoice received · $420.50 due 2026-11-20"`.
-
-### 6. `SubscriptionFilter` (`src/filters/subscription.rs`)
-- **Detection**: Matches plan auto-renewals, recurring membership notices, and digital subscription updates.
-- **Extraction**: Extracts `provider`, `subscription_amount`, `billing_frequency` (monthly/annual), `renewal_date`, and `cancellation_info`.
-- **Preview**: `"SoundWave Music · monthly renewal on 2026-11-28"`.
-
-### 7. `TravelFilter` (`src/filters/travel.rs`)
-- **Detection**: Matches flight bookings, hotel reservations, train e-tickets, and car rental confirmations.
-- **Extraction**: Extracts `booking_id` / PNR, `destination`, `departure_date`, `return_date`, and `booking_status`.
-- **Preview**: `"Booking to Tokyo (HND) · Confirmed for 2026-12-05"`.
-
-### 8. `NewsletterFilter` (`src/filters/newsletter.rs`)
-- **Detection**: Matches weekly digests, market briefs, engineering roundups, and unsubscribe markers.
-- **Extraction**: Extracts `publisher`, `main_topic`, and `headline`.
-- **Preview**: `"Rust Weekly Digest · Rust 2024 Edition stabilized and async closures ready"`.
-
-### 9. `SocialFilter` (`src/filters/social.rs`)
-- **Detection**: Matches connection invitations, mentions, PR reviews, video comments, and reactions.
-- **Extraction**: Extracts `platform`, `activity_type`, and `relevant_entity` (actor name).
-- **Preview**: `"ProConnect · Connection request from Alex Vance"`.
-
-### 10. `GeneralFilter` (`src/filters/general.rs`)
-- **Detection**: Fallback filter triggered when no specialized filter matches.
-- **Extraction**: Generates a clean text summary of the first complete sentence.
-- **Preview**: Sanitized, whitespace-normalized excerpt truncated cleanly at word boundaries (< 95 chars).
-
----
+1. **Pre-Compilation Rule**: Never call `Regex::new()` inside extraction loops or request handlers. Compile all regexes inside `new()` constructors and store them in struct fields.
+2. **No Catastrophic Backtracking**:
+   - Avoid nested unbounded quantifiers like `(a+)+` or `.*.*`.
+   - Use strict character classes (e.g. `[A-Za-z0-9_-]`) rather than open-ended `.*`.
+3. **Zero Unwraps in Production Paths**: Return `Result<T, Error>` for fallible operations. Use `.and_then()`, `.map()`, or `?` rather than `.unwrap()`.
+4. **Memory Reuse**: Avoid cloning large strings where references suffice. Format preview strings with pre-allocated capacity.
+5. **Continuous Verification**: Pull requests must pass `cargo test`, `cargo clippy --all-targets --all-features`, and `cargo fmt --check`.

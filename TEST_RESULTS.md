@@ -1,9 +1,9 @@
 # Relay Rover — Test & Production Intelligence Report
 
 > **Engine:** Relay Rover (Rust Regex WebAssembly Engine)  
-> **Package:** `@rhq/rover` (`react-native-relay-rover`)  
+> **Package:** `@rhq/rover`
 > **Generated At:** 2026-11-14T14:00:26.485Z  
-> **Architecture Alignment:** Fully aligned with [*Meet Rover: The Intelligence Behind Relay Mail*](https://blogs.relaymail.online/blog/rover)  
+> **Architecture:** [*Meet Rover: The Intelligence Behind Relay Mail*](https://blogs.relaymail.online/blog/rover)  
 
 ---
 
