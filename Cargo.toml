@@ -2,6 +2,23 @@
 name = "relay-rover"
 version = "0.1.0"
 edition = "2024"
+description = "High-performance, zero-LLM deterministic email intelligence, classification, and entity extraction engine for Relay Mail."
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/RelayHQX/rover"
+homepage = "https://blogs.relaymail.online/blog/rover"
+documentation = "https://docs.rs/relay-rover"
+authors = ["Relay Team <engineering@relaymail.online>"]
+keywords = ["email", "regex", "intelligence", "extraction", "wasm"]
+categories = ["text-processing", "parser-implementations", "wasm"]
+exclude = [
+    "packages",
+    "scratch/*",
+    "test_rover.js",
+    "sample_5_types.json",
+    "TEST_RESULTS.md",
+    
+]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
