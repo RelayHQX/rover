@@ -1,6 +1,10 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
 group = 'com.relayhq.rover'
 version = '0.1.0'
 
@@ -16,17 +20,21 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 34
+    compileSdkVersion safeExtGet('compileSdkVersion', 34)
     namespace "com.relayhq.rover"
 
+    if (rootProject.ext.has('ndkVersion')) {
+        ndkVersion rootProject.ext.get('ndkVersion')
+    }
+
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 34
+        minSdkVersion safeExtGet('minSdkVersion', 21)
+        targetSdkVersion safeExtGet('targetSdkVersion', 34)
         versionCode 1
         versionName "0.1.0"
 
         ndk {
-            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64', 'x86'
+            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64'
         }
 
         externalNativeBuild {
@@ -61,17 +69,18 @@ repositories {
 
 dependencies {
     // Kotlin & Coroutines
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
     // JNA for UniFFI bindings
     implementation "net.java.dev.jna:jna:5.14.0@aar"
 
-    // Optional Expo Modules Core dependency
-    compileOnly "host.exp:expo:+"
-    compileOnly project(':expo-modules-core')
+    // Expo Modules Core dependency
+    if (findProject(':expo-modules-core') != null) {
+        implementation project(':expo-modules-core')
+    }
 
-    // Optional React Native dependency
-    compileOnly "com.facebook.react:react-android:+"
+    // React Native dependency
+    compileOnly "com.facebook.react:react-android"
 }

@@ -24,9 +24,17 @@ add_library(roverjsi SHARED
 find_library(LOG_LIB log)
 find_library(ANDROID_LIB android)
 
-target_link_libraries(roverjsi
-    PRIVATE
-    relay_rover
-    ${LOG_LIB}
-    ${ANDROID_LIB}
-)
+if(TARGET relay_rover)
+    target_link_libraries(roverjsi
+        PRIVATE
+        relay_rover
+        ${LOG_LIB}
+        ${ANDROID_LIB}
+    )
+else()
+    target_link_libraries(roverjsi
+        PRIVATE
+        ${LOG_LIB}
+        ${ANDROID_LIB}
+    )
+endif()
