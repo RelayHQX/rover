@@ -2,8 +2,6 @@ package com.relayhq.rover
 
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * Expo Module implementation for Relay Rover on Android.
@@ -42,15 +40,11 @@ class RoverModule : Module() {
     }
 
     AsyncFunction("processEmailAsync") { emailJson: String ->
-      withContext(Dispatchers.Default) {
-        RoverNativeBridge.processEmailJson(emailJson)
-      }
+      RoverNativeBridge.processEmailJson(emailJson)
     }
 
     AsyncFunction("processBatchAsync") { batchJson: String ->
-      withContext(Dispatchers.Default) {
-        RoverNativeBridge.processBatchJson(batchJson)
-      }
+      RoverNativeBridge.processBatchJson(batchJson)
     }
   }
 }
