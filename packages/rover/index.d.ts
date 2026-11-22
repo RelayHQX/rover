@@ -187,6 +187,18 @@ export declare const RelayRover: {
    * Rover Intelligence Index timeline grouping engine.
    */
   index: typeof RoverIndex;
+
+  /**
+   * Asynchronously process a single email off the UI thread (React Native / Hermes).
+   */
+  processAsync?(email: EmailRecordInput | string): Promise<ProcessedEmail>;
+
+  /**
+   * Asynchronously process a batch of emails off the UI thread (React Native / Hermes).
+   */
+  processBatchAsync?(emails: EmailRecordInput[] | string): Promise<ProcessedEmail[]>;
 };
+
+export declare function init(customBytes?: any): any;
 
 export default RelayRover;

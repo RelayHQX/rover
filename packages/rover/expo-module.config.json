@@ -1,0 +1,10 @@
+{
+  "name": "RelayRover",
+  "platforms": ["ios", "android"],
+  "android": {
+    "modules": ["com.relayhq.rover.RoverModule"]
+  },
+  "ios": {
+    "modules": ["RoverModule"]
+  }
+}

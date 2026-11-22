@@ -1,4 +1,52 @@
-/target
-/scratch/*
-/data/*
+# Rust build outputs
+/target/
+**/*.rs.bk
+
+# C / Native artifacts
+*.so
+*.dylib
+*.a
+
+# WASM build artifacts
 *.wasm
+
+# Node & package managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Android build artifacts
+.gradle/
+build/
+**/build/
+.cxx/
+**/.cxx/
+local.properties
+*.aar
+*.apk
+*.dex
+
+# iOS build artifacts
+Pods/
+**/Pods/
+*.xcworkspace/
+*.xcodeproj/xcuserdata/
+DerivedData/
+*.dSYM/
+*.framework/
+*.xcframework/
+
+# Scratch & temporary workspace files
+/scratch/
+/data/
+*.log
+
+# IDE & OS metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~

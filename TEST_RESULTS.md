@@ -1,9 +1,9 @@
 # Relay Rover — Test & Production Intelligence Report
 
-> **Engine:** Relay Rover (Rust Regex WebAssembly Engine)  
-> **Package:** `@rhq/rover`
-> **Generated At:** 2026-11-14T14:00:26.485Z  
-> **Architecture:** [*Meet Rover: The Intelligence Behind Relay Mail*](https://blogs.relaymail.online/blog/rover)  
+> **Engine:** Relay Rover (Zero-LLM Deterministic Rust Regex WebAssembly Engine)  
+> **Package:** `@rhq/rover` (`react-native-relay-rover`)  
+> **Generated At:** 2026-11-22T13:23:18.955Z  
+> **Architecture Alignment:** Fully aligned with [*Meet Rover: The Intelligence Behind Relay Mail*](https://blogs.relaymail.online/blog/rover)  
 
 ---
 
@@ -13,14 +13,14 @@ Rover runs directly inside the client JavaScript/React Native runtime via linear
 
 | Metric | Measured Value | Unit | Target / SLA |
 |---|---|---|---|
-| **Cold Start (Instantiation)** | `2.66 ms` | ms | < 20 ms |
-| **Median Latency (p50)** | `2616.3 µs` (`2.616 ms`) | µs / ms | < 500 µs |
-| **95th Percentile (p95)** | `16550.6 µs` (`16.551 ms`) | µs / ms | < 1,500 µs |
-| **99th Percentile (p99)** | `18052 µs` (`18.052 ms`) | µs / ms | < 3,000 µs |
-| **Average Latency** | `7246.7 µs` | µs | < 800 µs |
-| **Min Latency** | `822.1 µs` | µs | - |
-| **Max Latency** | `19712.7 µs` | µs | - |
-| **Throughput** | **`138 emails/sec`** | emails/s | > 1,000 emails/s |
+| **Cold Start (Instantiation)** | `1.96 ms` | ms | < 20 ms |
+| **Median Latency (p50)** | `1515.8 µs` (`1.516 ms`) | µs / ms | < 500 µs |
+| **95th Percentile (p95)** | `9259.2 µs` (`9.259 ms`) | µs / ms | < 1,500 µs |
+| **99th Percentile (p99)** | `9328.4 µs` (`9.328 ms`) | µs / ms | < 3,000 µs |
+| **Average Latency** | `4214.3 µs` | µs | < 800 µs |
+| **Min Latency** | `515.9 µs` | µs | - |
+| **Max Latency** | `9820.4 µs` | µs | - |
+| **Throughput** | **`237 emails/sec`** | emails/s | > 1,000 emails/s |
 | **Total Benchmark Volume** | `150 inferences` | iterations | - |
 
 ---

@@ -42,6 +42,18 @@ Traditional email clients treat every message the same: they show sender, subjec
 
 ## Installation
 
+### React Native & Expo
+```bash
+# In an Expo project
+npx expo install @rhq/rover
+
+# In a React Native project
+npm install @rhq/rover
+# on iOS, install CocoaPods:
+npx pod-install
+```
+
+### Web & Node.js
 ```bash
 npm install @rhq/rover
 # or with pnpm
@@ -49,6 +61,16 @@ pnpm add @rhq/rover
 # or with yarn
 yarn add @rhq/rover
 ```
+
+---
+
+## ⚡ React Native & Hermes Architecture
+
+Rover includes dedicated first-class React Native support:
+- **Zero Node Built-in Dependencies**: No `fs`, `path`, or `url` imports in the React Native execution path.
+- **Hermes Native Performance**: Functions execute via compiled C++ JSI host objects and UniFFI native bindings, completely bypassing legacy React Native JSON bridge overhead.
+- **Off-Thread Background Processing**: Execute heavy batch email syncs off the UI thread via `processAsync` and `processBatchAsync` without dropping a single frame (120fps smooth animations).
+- **Zero Breaking API Changes**: Existing code runs without changes. The same exports, function signatures, and return objects work seamlessly on Web, Node, iOS, and Android.
 
 ---
 

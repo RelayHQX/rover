@@ -10,7 +10,7 @@ fn get_engine() -> &'static EmailEngine {
     })
 }
 
-fn html_to_plain_text(html: &str) -> String {
+pub fn html_to_plain_text(html: &str) -> String {
     let mut out = String::with_capacity(html.len());
     let mut in_tag = false;
     let mut in_script_or_style = false;

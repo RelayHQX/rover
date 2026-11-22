@@ -1,21 +1,44 @@
 {
   "name": "@rhq/rover",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "High-performance React Native and JavaScript bindings for Relay Rover Email Intelligence Engine",
   "main": "./index.js",
+  "react-native": "./index.native.js",
   "exports": {
-    ".": "./index.js"
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./index.d.ts",
+      "react-native": "./index.native.js",
+      "import": "./index.js",
+      "default": "./index.js"
+    }
   },
   "types": "./index.d.ts",
   "type": "module",
   "files": [
     "index.js",
+    "index.native.js",
     "index.d.ts",
     "eng/relay_rover.wasm",
-    "README.md"
+    "expo-module.config.json",
+    "Rover.podspec",
+    "android/build.gradle",
+    "android/CMakeLists.txt",
+    "android/src",
+    "ios",
+    "!ios/Pods",
+    "!ios/build",
+    "!ios/DerivedData",
+    "cpp",
+    "README.md",
+    "LICENSE"
   ],
   "keywords": [
     "react-native",
+    "expo",
+    "hermes",
+    "jsi",
+    "uniffi",
     "relay-rover",
     "email-intelligence",
     "rust",

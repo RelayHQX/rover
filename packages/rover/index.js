@@ -4,9 +4,9 @@
  * Zero-dependency, in-memory execution powered by compiled Rust WASM.
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 let wasmInstance = null;
 let wasmExports = null;
@@ -34,7 +34,7 @@ export function init(customBytes) {
       if (fs.existsSync(wasmPath)) {
         bytes = fs.readFileSync(wasmPath);
       }
-    } catch (_) {}
+    } catch (_) { }
   }
 
   if (!bytes) {
@@ -102,7 +102,7 @@ export function htmlToText(html) {
       exp.rover_dealloc(input.ptr, input.len);
       return text;
     }
-  } catch (_) {}
+  } catch (_) { }
 
   // JavaScript fallback
   return html

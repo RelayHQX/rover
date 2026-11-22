@@ -1,0 +1,30 @@
+# Android build caches & Gradle internals
+.gradle/
+android/.gradle/
+**/android/.gradle/**
+build/
+android/build/
+**/android/build/**
+.cxx/
+android/.cxx/
+**/android/.cxx/**
+local.properties
+*.aar
+*.apk
+*.dex
+
+# iOS build caches
+Pods/
+ios/Pods/
+**/ios/Pods/**
+*.xcworkspace
+*.xcuserdata
+DerivedData/
+*.dSYM
+
+# Temporary and system files
+*.log
+.DS_Store
+Thumbs.db
+*.swp
+*~
