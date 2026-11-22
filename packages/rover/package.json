@@ -1,6 +1,6 @@
 {
   "name": "@rhq/rover",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "High-performance React Native and JavaScript bindings for Relay Rover Email Intelligence Engine",
   "main": "./index.js",
   "react-native": "./index.native.js",
