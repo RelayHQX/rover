@@ -2,7 +2,7 @@
 
 > **Engine:** Relay Rover (Zero-LLM Deterministic Rust Regex WebAssembly Engine)  
 > **Package:** `@rhq/rover` (`react-native-relay-rover`)  
-> **Generated At:** 2026-11-22T13:23:18.955Z  
+> **Generated At:** 2026-11-23T09:50:07.371Z  
 > **Architecture Alignment:** Fully aligned with [*Meet Rover: The Intelligence Behind Relay Mail*](https://blogs.relaymail.online/blog/rover)  
 
 ---
@@ -13,14 +13,14 @@ Rover runs directly inside the client JavaScript/React Native runtime via linear
 
 | Metric | Measured Value | Unit | Target / SLA |
 |---|---|---|---|
-| **Cold Start (Instantiation)** | `1.96 ms` | ms | < 20 ms |
-| **Median Latency (p50)** | `1515.8 µs` (`1.516 ms`) | µs / ms | < 500 µs |
-| **95th Percentile (p95)** | `9259.2 µs` (`9.259 ms`) | µs / ms | < 1,500 µs |
-| **99th Percentile (p99)** | `9328.4 µs` (`9.328 ms`) | µs / ms | < 3,000 µs |
-| **Average Latency** | `4214.3 µs` | µs | < 800 µs |
-| **Min Latency** | `515.9 µs` | µs | - |
-| **Max Latency** | `9820.4 µs` | µs | - |
-| **Throughput** | **`237 emails/sec`** | emails/s | > 1,000 emails/s |
+| **Cold Start (Instantiation)** | `6.27 ms` | ms | < 20 ms |
+| **Median Latency (p50)** | `164.5 µs` (`0.165 ms`) | µs / ms | < 500 µs |
+| **95th Percentile (p95)** | `1065.1 µs` (`1.065 ms`) | µs / ms | < 1,500 µs |
+| **99th Percentile (p99)** | `1439.1 µs` (`1.439 ms`) | µs / ms | < 3,000 µs |
+| **Average Latency** | `480.5 µs` | µs | < 800 µs |
+| **Min Latency** | `60.6 µs` | µs | - |
+| **Max Latency** | `1738.9 µs` | µs | - |
+| **Throughput** | **`2,069 emails/sec`** | emails/s | > 1,000 emails/s |
 | **Total Benchmark Volume** | `150 inferences` | iterations | - |
 
 ---
@@ -39,13 +39,17 @@ Rover implements dual-layer classification to bridge traditional inbox folders w
 
 As outlined in the blog, Rover extracts deterministic `timeline_key` identifiers to seamlessly group related communications into continuous timelines:
 
+### Timeline: `auth:nintendo` (otp)
+
+- **[Nintendo verification code: 0313 (Expires in 24 hours)]** — Sender: `no-reply@accounts.nintendo.com` | Category: `otp`
+
 ### Timeline: `payment:FMPIB6973726141` (payment)
 
-- **[₹10.0 paid to DigiGold · Successful]** — Sender: `Unknown` | Category: `payment`
+- **[₹10.0 paid to DigiGold · Successful]** — Sender: `no-reply@famapp.in` | Category: `payment`
 
 ### Timeline: `order:GPA.3399-0949-2150-45472` (shopping)
 
-- **[₹29.00 · Special Airdrop 412 (Google Play)]** — Sender: `Unknown` | Category: `shopping`
+- **[₹29.00 · Special Airdrop 412 (Google Play)]** — Sender: `googleplay-noreply@google.com` | Category: `shopping`
 
 ---
 
@@ -57,11 +61,11 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
 
 | # | Folder | Purpose | Importance | Contextual Preview | Email Subject & Sender | Extracted Rover Data |
 |:---:|:---:|:---:|:---:|---|---|---|
-| **1** | `SOCIAL` | `SOCIAL` | `NORMAL` | **LinkedIn · Reaction from Udoh Jeremiah** | Udoh Jeremiah - Finance Intern reacted to this pos<br>*From: LinkedIn (updates-noreply@linkedin.com)* | **platform:** `LinkedIn`<br>**activity_type:** `Reaction`<br>**relevant_entity:** `I am thrilled to announce…`<br>**actor:** `Udoh Jeremiah`<br>**post_url:** `https://www.linkedin.com/comm/feed/update/urn:li:activity:7523990675600809984` |
-| **2** | `UPDATES` | `JOB` | `NORMAL` | **Job Alert · 8 React Native Developer jobs at Webomindapps** | React Native Developer at Webomindapps. 7 more rea<br>*From: Indeed (donotreply@jobalert.indeed.com)* | **company:** `Webomindapps`<br>**position:** `React Native Developer`<br>**location:** `Khombhadi, Gujarat`<br>**job_count:** `8`<br>**is_job_alert:** `true`<br>**job_url:** `https://in.indeed.com/jobs?q=react+native+expo&hl=en&from=ja&radius=25&alid=69e4af03aebf194d578c213b&tmtk=1k75l8h28h1qm800&utm_campaign=job_alerts&utm_medium=email&utm_source=jobseeker_emails&of=1&fr=t` |
-| **3** | `PRIMARY` | `OTP` | `URGENT` | **Nintendo verification code: 0313 (Expires in 24 hours)** | [0313] Nintendo Account: E-mail address verificati<br>*From: no-reply@accounts.nintendo.com* | **otp_code:** `0313`<br>**service_name:** `Nintendo`<br>**expiration_time:** `24 hours`<br>**auth_purpose:** `Account Registration`<br>**action_url:** `https://www.region-selector-support.nintendo.com/` |
-| **4** | `UPDATES` | `PAYMENT` | `HIGH` | **₹10.0 paid to DigiGold · Successful** | Your payment of ₹10.0 is successful<br>*From: FamApp (no-reply@famapp.in)* | **amount:** `10.0`<br>**currency:** `INR`<br>**payer:** `Soham Pramanik`<br>**recipient:** `DigiGold`<br>**transaction_id:** `FMPIB6973726141`<br>**transaction_date:** `2026-11-11`<br>**transaction_time:** `03:39 PM IST`<br>**transaction_status:** `Successful`<br>**timeline_key:** `payment:FMPIB6973726141` |
-| **5** | `UPDATES` | `SHOPPING` | `NORMAL` | **₹29.00 · Special Airdrop 412 (Google Play)** | Your Google Play Order Receipt from 27 Oct 2026<br>*From: Google Play (googleplay-noreply@google.com)* | **store:** `Google Play`<br>**order_id:** `GPA.3399-0949-2150-45472`<br>**product:** `Special Airdrop 412`<br>**amount:** `29.00`<br>**currency:** `INR`<br>**tax:** `4.42`<br>**order_date:** `27 Oct 2026`<br>**delivery_status:** `Processing`<br>**payment_method:** `Google Play balance`<br>**timeline_key:** `order:GPA.3399-0949-2150-45472` |
+| **1** | `SOCIAL` | `SOCIAL` | `NORMAL` | **LinkedIn · Reaction from Udoh Jeremiah** | Udoh Jeremiah - Finance Intern reacted to this pos<br>*From: LinkedIn (updates-noreply@linkedin.com)* | **platform:** `LinkedIn`<br>**activity_type:** `Reaction`<br>**actor:** `Udoh Jeremiah`<br>**relevant_entity:** `I am thrilled to announce…`<br>**post_url:** `https://www.linkedin.com/comm/feed/update/urn:li:activity:7523990675600809984` |
+| **2** | `UPDATES` | `JOB` | `NORMAL` | **Job Alert · 8 React Native Developer jobs at Webomindapps** | React Native Developer at Webomindapps. 7 more rea<br>*From: Indeed (donotreply@jobalert.indeed.com)* | **company:** `Webomindapps`<br>**position:** `React Native Developer`<br>**location:** `Khombhadi, Gujarat`<br>**job_count:** `8`<br>**is_job_alert:** `true`<br>**job_url:** `https://in.indeed.com/jobs?q=react+native+expo&hl=en&from=ja&radius=25&alid=69e4af03aebf194d578c213b&tmtk=1k75l8h28h1qm800&utm_campaign=job_alerts&utm_medium=email&utm_source=jobseeker_emails&of=1&fr=t`<br>**service:** `Webomindapps`<br>**summary:** `React Native Developer at Webomindapps. 7 more react native expo jobs` |
+| **3** | `PRIMARY` | `OTP` | `URGENT` | **Nintendo verification code: 0313 (Expires in 24 hours)** | [0313] Nintendo Account: E-mail address verificati<br>*From: no-reply@accounts.nintendo.com* | **otp_code:** `0313`<br>**code:** `0313`<br>**service_name:** `Nintendo`<br>**service:** `Nintendo`<br>**expiration_time:** `24 hours`<br>**expires_in:** `24 hours`<br>**auth_purpose:** `Account Registration`<br>**action_url:** `https://www.region-selector-support.nintendo.com/`<br>**timeline_key:** `auth:nintendo` |
+| **4** | `UPDATES` | `PAYMENT` | `HIGH` | **₹10.0 paid to DigiGold · Successful** | Your payment of ₹10.0 is successful<br>*From: FamApp (no-reply@famapp.in)* | **amount:** `10.0`<br>**currency:** `INR`<br>**payer:** `Soham Pramanik`<br>**recipient:** `DigiGold`<br>**transaction_id:** `FMPIB6973726141`<br>**transaction_date:** `2026-11-11`<br>**date:** `2026-11-11`<br>**transaction_time:** `03:39 PM IST`<br>**transaction_status:** `Successful`<br>**status:** `Successful`<br>**timeline_key:** `payment:FMPIB6973726141` |
+| **5** | `UPDATES` | `SHOPPING` | `NORMAL` | **₹29.00 · Special Airdrop 412 (Google Play)** | Your Google Play Order Receipt from 27 Oct 2026<br>*From: Google Play (googleplay-noreply@google.com)* | **store:** `Google Play`<br>**order_id:** `GPA.3399-0949-2150-45472`<br>**product:** `Special Airdrop 412`<br>**amount:** `29.00`<br>**currency:** `INR`<br>**tax:** `4.42`<br>**order_date:** `27 Oct 2026`<br>**delivery_status:** `Processing`<br>**status:** `Processing`<br>**payment_method:** `Google Play balance`<br>**timeline_key:** `order:GPA.3399-0949-2150-45472` |
 
 ### Detailed Side-by-Side: Email Body vs Rover JSON Response
 
@@ -79,14 +83,11 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
 **Email Body Text:**
 > Udoh Jeremiah reacted to this
 > 
-> 
 > Shruti Grover LIKE PRAISE APPRECIATION 196, 52 Comments
-> 
 > 
 > Udoh Jeremiahcommented a post: You can lose CTRL but please don’t lose CMD
 > 
-> 
-> Read more:  https://www.linkedin.com/comm/feed/update/urn:li:activity:7523990675600809984?highlightedUpdateUrn=urn%3Ali%3Aactivity%3A...
+>  Read more: https://www.linkedin.com/comm/feed/update/urn:li:activity:7523990675600809984?highlightedUpdateUrn=urn%3Ali%3Aactivity%3A752...
 
 **Rover JSON Response:**
 ```json
@@ -94,7 +95,7 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
   "category": "social",
   "classification": {
     "general_category": "social",
-    "purpose": "social",
+    "purpose": "Social",
     "importance": "normal",
     "is_alert": false,
     "security": "none",
@@ -111,12 +112,13 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
   "data": {
     "platform": "LinkedIn",
     "activity_type": "Reaction",
-    "relevant_entity": "I am thrilled to announce…",
     "actor": "Udoh Jeremiah",
+    "relevant_entity": "I am thrilled to announce…",
     "post_url": "https://www.linkedin.com/comm/feed/update/urn:li:activity:7523990675600809984",
     "raw_evidence": "Udoh Jeremiah - Finance Intern reacted to this post: I am thrilled to announce…"
   },
   "matched_categories": [
+    "social",
     "social"
   ]
 }
@@ -148,7 +150,7 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
   "category": "job",
   "classification": {
     "general_category": "updates",
-    "purpose": "job",
+    "purpose": "Job",
     "importance": "normal",
     "is_alert": false,
     "security": "none",
@@ -169,9 +171,12 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
     "job_count": 8,
     "is_job_alert": true,
     "job_url": "https://in.indeed.com/jobs?q=react+native+expo&hl=en&from=ja&radius=25&alid=69e4af03aebf194d578c213b&tmtk=1k75l8h28h1qm800&utm_campaign=job_alerts&utm_medium=email&utm_source=jobseeker_emails&of=1&fr=t",
+    "service": "Webomindapps",
+    "summary": "React Native Developer at Webomindapps. 7 more react native expo jobs",
     "raw_evidence": "React Native Developer at Webomindapps. 7 more react native expo jobs"
   },
   "matched_categories": [
+    "job",
     "job"
   ]
 }
@@ -189,6 +194,7 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
 | **Purpose** | `OTP` |
 | **Importance / Urgency** | `urgent` (Alert: `true`) |
 | **Preview** | "Nintendo verification code: 0313 (Expires in 24 hours)" |
+| **Timeline Key** | `auth:nintendo` |
 
 **Email Body Text:**
 > This is an automatically generated e-mail from Nintendo.
@@ -210,7 +216,7 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
   "category": "otp",
   "classification": {
     "general_category": "primary",
-    "purpose": "otp",
+    "purpose": "Otp",
     "importance": "urgent",
     "is_alert": true,
     "security": "authentication",
@@ -224,15 +230,21 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
     "secondary_purposes": []
   },
   "preview": "Nintendo verification code: 0313 (Expires in 24 hours)",
+  "timeline_key": "auth:nintendo",
   "data": {
     "otp_code": "0313",
+    "code": "0313",
     "service_name": "Nintendo",
+    "service": "Nintendo",
     "expiration_time": "24 hours",
+    "expires_in": "24 hours",
     "auth_purpose": "Account Registration",
     "action_url": "https://www.region-selector-support.nintendo.com/",
+    "timeline_key": "auth:nintendo",
     "raw_evidence": "[0313] Nintendo Account: E-mail address verification"
   },
   "matched_categories": [
+    "otp",
     "otp"
   ]
 }
@@ -261,7 +273,7 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
   "category": "payment",
   "classification": {
     "general_category": "updates",
-    "purpose": "payment",
+    "purpose": "Payment",
     "importance": "high",
     "is_alert": false,
     "security": "none",
@@ -283,12 +295,15 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
     "recipient": "DigiGold",
     "transaction_id": "FMPIB6973726141",
     "transaction_date": "2026-11-11",
+    "date": "2026-11-11",
     "transaction_time": "03:39 PM IST",
     "transaction_status": "Successful",
+    "status": "Successful",
     "timeline_key": "payment:FMPIB6973726141",
     "raw_evidence": "Your payment of ₹10.0 is successful"
   },
   "matched_categories": [
+    "payment",
     "payment"
   ]
 }
@@ -343,7 +358,7 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
   "category": "shopping",
   "classification": {
     "general_category": "updates",
-    "purpose": "shopping",
+    "purpose": "Shopping",
     "importance": "normal",
     "is_alert": false,
     "security": "none",
@@ -367,11 +382,13 @@ Extracted from real emails in `relay-emails.jsonl` to test distinct category det
     "tax": "4.42",
     "order_date": "27 Oct 2026",
     "delivery_status": "Processing",
+    "status": "Processing",
     "payment_method": "Google Play balance",
     "timeline_key": "order:GPA.3399-0949-2150-45472",
     "raw_evidence": "Your Google Play Order Receipt from 27 Oct 2026"
   },
   "matched_categories": [
+    "shopping",
     "shopping"
   ]
 }

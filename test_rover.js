@@ -7,7 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { RelayRover, RoverIndex, cleanEmailBody, normalizeEmail, htmlToText } from './packages/rover/index.js';
+import { RelayRover, RoverIndex, cleanEmailBody, normalizeEmail, htmlToText } from './packages/rover/dist/index.js';
 
 /**
  * Measure WASM cold-start compilation and warm execution latencies.

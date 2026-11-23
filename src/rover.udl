@@ -1,9 +1,0 @@
-namespace relay_rover {
-    string classify(string subject, string body);
-    string generate_preview(string subject, string body);
-    string process_email(string subject, string body);
-    string process_email_json(string email_json);
-    string process_batch_json(string batch_json);
-    string html_to_text(string html);
-    string clean_email_body(string body_or_html);
-};

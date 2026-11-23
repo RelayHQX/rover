@@ -7,11 +7,14 @@
 *.dylib
 *.a
 
-# WASM build artifacts
+# WASM build artifacts (keep distributed engine)
 *.wasm
+!packages/rover/eng/relay_rover.wasm
 
 # Node & package managers
 node_modules/
+dist/
+**/dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -42,6 +45,7 @@ DerivedData/
 /scratch/
 /data/
 *.log
+scratch_user_request.txt
 
 # IDE & OS metadata
 .DS_Store

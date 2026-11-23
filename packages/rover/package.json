@@ -1,51 +1,52 @@
 {
   "name": "@rhq/rover",
-  "version": "0.1.4",
-  "description": "High-performance React Native and JavaScript bindings for Relay Rover Email Intelligence Engine",
-  "main": "./index.js",
-  "react-native": "./index.native.js",
+  "version": "0.1.5",
+  "description": "Clean, lightweight, TypeScript-first email intelligence library for React Native and JavaScript",
+  "main": "./dist/index.js",
+  "react-native": "./dist/react-native.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./index.d.ts",
-      "react-native": "./index.native.js",
-      "import": "./index.js",
-      "default": "./index.js"
+      "types": "./dist/index.d.ts",
+      "react-native": "./dist/react-native.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./react-native": {
+      "types": "./dist/react-native.d.ts",
+      "default": "./dist/react-native.js"
+    },
+    "./wasm": {
+      "types": "./dist/wasm.d.ts",
+      "default": "./dist/wasm.js"
     }
   },
-  "types": "./index.d.ts",
-  "type": "module",
   "files": [
-    "index.js",
-    "index.native.js",
-    "index.d.ts",
+    "dist",
     "eng/relay_rover.wasm",
-    "expo-module.config.json",
-    "Rover.podspec",
-    "android",
-    "!android/.gradle",
-    "!android/build",
-    "!android/.cxx",
-    "ios",
-    "!ios/Pods",
-    "!ios/build",
-    "!ios/DerivedData",
-    "cpp",
     "README.md",
     "LICENSE"
   ],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test tests/**/*.test.js"
+  },
   "keywords": [
     "react-native",
     "expo",
-    "hermes",
-    "jsi",
-    "uniffi",
-    "relay-rover",
     "email-intelligence",
-    "rust",
-    "regex",
+    "email-parser",
+    "otp-extractor",
+    "typescript",
+    "relay-rover",
     "wasm"
   ],
   "author": "Relay Team",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2"
+  }
 }

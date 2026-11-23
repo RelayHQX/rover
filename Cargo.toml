@@ -1,6 +1,6 @@
 [package]
 name = "relay-rover"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 description = "High-performance, zero-LLM deterministic email intelligence, classification, and entity extraction engine for Relay Mail."
 license = "MIT"
@@ -23,7 +23,7 @@ exclude = [
 ]
 
 [lib]
-crate-type = ["cdylib", "rlib", "staticlib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 regex = "1.13.1"
@@ -34,20 +34,7 @@ rust_decimal = { version = "1.36", features = ["serde-with-str"] }
 anyhow = "1.0.104"
 rayon = "1.10.0"
 wasm-bindgen = { version = "0.2.130", optional = true }
-uniffi = { version = "0.32.2", default-features = false }
-
-[build-dependencies]
-uniffi = { version = "0.32.2", features = ["build"] }
-
-[[bin]]
-name = "uniffi-bindgen"
-path = "src/bin/uniffi-bindgen.rs"
-required-features = ["cli"]
 
 [features]
 default = []
 wasm = ["dep:wasm-bindgen"]
-cli = ["uniffi/cli"]
-
-[lints.rust]
-unsafe_attr_outside_unsafe = "allow"
